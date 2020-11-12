@@ -48,5 +48,5 @@ function playVideoOnScroll(){
     }, 10)
 }
 
-inicializarSlider();
+//inicializarSlider();
 playVideoOnScroll();

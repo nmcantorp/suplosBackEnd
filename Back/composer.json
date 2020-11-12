@@ -1,0 +1,19 @@
+{
+    "name": "nmcantorp/back_suplos",
+    "require": {},
+    "authors": [
+        {
+            "name": "Nestor Mauricio Cantor Puentes",
+            "email": "mauricio.cantor.p@hotmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+
+    }
+}
