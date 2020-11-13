@@ -1,9 +1,26 @@
 const URL_BASE = window.location.href;
 var bienes;
+var bienes_usr;
 
-function loadHtml() {
+$( document ).ajaxStart(function () {
+    $('.container_pre').show();
+});
+
+$( document ).ajaxComplete(function() {
+    $('.container_pre').hide();
+});
+
+function loadHtml(type="all") {
     var html = "";
-    bienes.forEach(function (bien) {
+    if(type=="all"){
+        array = bienes;
+    }else{
+        array = bienes_usr;
+    }
+    array.forEach(function (bien) {
+        if(type!='all'){
+            bien = JSON.parse(bien.content);
+        }
         html += `<div class="col s6 m6">
                 <div class="row">
                   <div class="col s6">
@@ -16,17 +33,23 @@ function loadHtml() {
                           <li class="collection-item"><strong>Telefono:</strong>  ${bien.Telefono}</li>
                           <li class="collection-item"><strong>Codigo Postal:</strong>  ${bien.Codigo_Postal}</li>
                           <li class="collection-item"><strong>Tipo:</strong>  ${bien.Tipo}</li>
-                          <li class="collection-item"><strong>Precio:</strong>  ${bien.Precio}</li>
-                        </ul>                 
+                          <li class="collection-item"><strong>Precio:</strong>  ${bien.Precio}</li>`;
+        if(type=='all') {
+            html += `<li class="collection-item"><button data-id="${bien.Id}" class="btn green">Guardar</button></li>`;
+        }
+        html +=`</ul>                 
                     </div>
                 </div>
               </div>
-                <hr>
-`;
-
+                <hr>`;
     });
-    document.getElementById('div_bienes').innerHTML = html;
-    document.getElementById('total_bienes').innerText = bienes.length;
+    if(type=="all") {
+        document.getElementById('div_bienes').innerHTML = html;
+        document.getElementById('total_bienes').innerText = array.length;
+    }else{
+        document.getElementById('div_mis_bienes').innerHTML = html;
+        document.getElementById('total_mis_bienes').innerText = array.length;
+    }
 }
 
 function loadFilterCities() {
@@ -72,11 +95,38 @@ function loadScrollPrice() {
     });
 }
 
-function loadInit() {
-    $.get(`${URL_BASE}back/bienes/`, function (data){
+function getOwnRealty() {
+    $.get(`${URL_BASE}back/bienes/getBienesByUser/?user_id=1`, function (data) {
+        bienes_usr = JSON.parse(data);
+        loadHtml('owns');
+    });
+}
+
+function loadEventButtons() {
+    var buttons = $('#tabs-1 li.collection-item button');
+    buttons.each(function (index, button) {
+        $(button).on('click', function (e) {
+            var bien_id = $(button).data('id');
+            $.get(`${URL_BASE}back/bienes/saveOwnRealty/?user_id=1&bien_id=${bien_id}`, function (data) {
+                var result = JSON.parse(data);
+                if (result.save) {
+                    getOwnRealty();
+                }
+            });
+        });
+    });
+}
+
+function pincipalLoad() {
+    $.get(`${URL_BASE}back/bienes/`, function (data) {
         bienes = JSON.parse(data);
         loadHtml();
+        loadEventButtons();
     });
+}
+
+function loadInit() {
+    pincipalLoad();
 
     $.get(`${URL_BASE}back/bienes/filters`, function (data){
         filters = JSON.parse(data);
@@ -98,9 +148,8 @@ function loadInit() {
             bienes = JSON.parse(data);
             bienes = Object.values(bienes);
             loadHtml();
+            loadEventButtons();
         });
-
-        console.log(city, tipo, precio);
     });
 
     $('#resetButton').on('click', function (e) {
@@ -109,7 +158,13 @@ function loadInit() {
         $('#selectCiudad').val(null);
         $('#selectTipo').val(null);
         my_range.reset();
+        pincipalLoad();
+
     });
+
+    getOwnRealty();
+
+    $('.container_pre').hide();
 }
 
 loadInit();

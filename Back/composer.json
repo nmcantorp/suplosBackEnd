@@ -1,6 +1,9 @@
 {
     "name": "nmcantorp/back_suplos",
-    "require": {},
+    "require": {
+        "doctrine/orm": "^2.7",
+        "vlucas/phpdotenv": "^2.4"
+    },
     "authors": [
         {
             "name": "Nestor Mauricio Cantor Puentes",
@@ -9,11 +12,19 @@
     ],
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "App\\": "src/",
+            "*\\": "/src/entities/"
         },
+        "psr-0": {"": "/src/entities/"},
         "files": [
             "src/helpers.php"
         ]
 
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "scripts": {
+        "post-install-cmd": "composer dump"
     }
 }
